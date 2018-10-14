@@ -9,11 +9,13 @@ read -r -d '' updateCommands <<-EOF0
 
 		# Update commands for pfSense
 		if(uname -a | egrep pfSense >/dev/null); then 
-			pfSense-upgrade
+			yes | pfSense-upgrade
 		
 		# Update commands for Debian and derivatives
-		elif(uname -a | egrep 'Debian|Ubuntu|PVE' >/dev/null); then 
-			sudo apt-get -y update && sudo apt-get -y upgrade && sudo apt-get -y autoremove
+		elif(uname -a | egrep 'Debian|Ubuntu|PVE' >/dev/null); then
+			sudo apt-get -y update &&
+			sudo env DEBIAN_FRONTEND=noninteractive apt-get -y upgrade &&
+			sudo apt-get -y autoremove
 		fi
 
 	EOF1
@@ -21,25 +23,32 @@ EOF0
 
 # Terminal text styling templates
 FORMAT_RESET="\x1b[0m"
-FORMAT_HEADING="\x1b[1;4m"
-FORMAT_SUCCESS="\x1b[42m"
-FORMAT_FAIL="\x1b[41m"
+FORMAT_HEADING="\x1b[3;38m"
+FORMAT_SUCCESS="\x1b[3;32m"
+FORMAT_FAIL="\x1b[3;31m"
+FORMAT_SUCCESS_MSG="\x1b[0;32m"
+FORMAT_FAIL_MSG="\x1b[0;31m"
 function printHeading(){
 	printf "$FORMAT_HEADING" >&3
-	printf "%s\n" "--- $1 ---"
+	printf "%s" "--- $1 ---"
 	printf "$FORMAT_RESET" >&3
+	printf "\n"
 }
 function printSuccess(){
 	printf "$FORMAT_SUCCESS" >&3
-	printf "SUCCESS: " >&2
-	printf "%s\n" "$1" >&2
+	printf "[SUCCESS]" >&2
+	printf "$FORMAT_SUCCESS_MSG" >&3
+	printf " %s" "$1" >&2
 	printf "$FORMAT_RESET" >&3
+	printf "\n" >&2
 }
 function printFail(){
 	printf "$FORMAT_FAIL" >&3
-	printf "FAIL: " >&2
-	printf "%s\n" "$1" >&2
+	printf "[FAIL]" >&2
+	printf "$FORMAT_FAIL_MSG" >&3
+	printf " %s" "$1" >&2
 	printf "$FORMAT_RESET" >&3
+	printf "\n" >&2
 }
 
 # Only enable pretty printing if stdout is a terminal
