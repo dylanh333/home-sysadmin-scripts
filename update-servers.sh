@@ -14,7 +14,8 @@ read -r -d '' updateCommands <<-EOF0
 		# Update commands for Debian and derivatives
 		elif(uname -a | egrep 'Debian|Ubuntu|PVE' >/dev/null); then
 			sudo apt-get -y update &&
-			sudo env DEBIAN_FRONTEND=noninteractive apt-get -y upgrade &&
+			sudo env DEBIAN_FRONTEND=noninteractive \
+				apt-get --with-new-pkgs -y upgrade &&
 			sudo apt-get -y autoremove
 		fi
 
